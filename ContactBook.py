@@ -1,64 +1,105 @@
-def add_contact(contact_book, name, phone_number):
-    """Add a new contact to the hash table."""
-    if name not in contact_book:
-        contact_book[name] = phone_number
-        print(f"Contact {name} added successfully.")
+import tkinter as tk
+from tkinter import messagebox
+
+# Simulated contact book (dictionary)
+contact_book = {}
+
+def add_contact():
+    name = name_entry.get()
+    phone = phone_entry.get()
+    email = email_entry.get()
+    if name and phone and email:  # Check if all fields are filled
+        contact_book[name] = {'Phone': phone, 'Email': email}
+        messagebox.showinfo("Success", "Contact added successfully!")
+        # Clear entries after adding
+        name_entry.delete(0, tk.END)
+        phone_entry.delete(0, tk.END)
+        email_entry.delete(0, tk.END)
     else:
-        print("Contact already exists.")
+        messagebox.showerror("Error", "All fields must be filled out.")
 
-def search_contact(contact_book, name):
-    """Search for a contact by name."""
-    try:
-        print(f"Contact: {name}, Phone Number: {contact_book[name]}")
-    except KeyError:
-        print("Contact not found.")
+def search_contact():
+    name = search_entry.get()
+    if name in contact_book:
+        contact = contact_book[name]
+        messagebox.showinfo("Search Result", f"Name: {name}, Phone: {contact['Phone']}, Email: {contact['Email']}")
+    else:
+        messagebox.showerror("Error", "Contact not found.")
+    search_entry.delete(0, tk.END)
 
-def delete_contact(contact_book, name):
-    """Delete a contact from the hash table."""
+def update_contact():
+    name = update_name_entry.get()
+    new_phone = update_phone_entry.get()
+    new_email = update_email_entry.get()
+    if name in contact_book and (new_phone or new_email):
+        if new_phone:
+            contact_book[name]['Phone'] = new_phone
+        if new_email:
+            contact_book[name]['Email'] = new_email
+        messagebox.showinfo("Success", "Contact updated successfully!")
+        # Clear entries after updating
+        update_name_entry.delete(0, tk.END)
+        update_phone_entry.delete(0, tk.END)
+        update_email_entry.delete(0, tk.END)
+    else:
+        messagebox.showerror("Error", "Contact does not exist or no new information provided.")
+
+def delete_contact():
+    name = delete_entry.get()
     if name in contact_book:
         del contact_book[name]
-        print(f"Contact {name} removed successfully.")
+        messagebox.showinfo("Success", "Contact deleted successfully!")
     else:
-        print("Contact does not exist.")
+        messagebox.showerror("Error", "Contact does not exist.")
+    delete_entry.delete(0, tk.END)
 
-def update_contact(contact_book, name, new_phone_number):
-    """Update an existing contact's phone number."""
-    if name in contact_book:
-        contact_book[name] = new_phone_number
-        print(f"Contact {name} updated successfully.")
-    else:
-        print("Contact does not exist.")
+def list_contacts():
+    list_window = tk.Toplevel(app)
+    list_window.title("List of Contacts")
+    scrollbar = tk.Scrollbar(list_window)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+    lb = tk.Listbox(list_window, width=50, height=20, yscrollcommand=scrollbar.set)
+    for name, info in contact_book.items():
+        lb.insert(tk.END, f"Name: {name}, Phone: {info['Phone']}, Email: {info['Email']}")
+    lb.pack(side=tk.LEFT, fill=tk.BOTH)
+    scrollbar.config(command=lb.yview)
 
-def main():
-    contact_book = {}
-    while True:
-        print("\nContact Management System")
-        print("1. Add a new contact")
-        print("2. Search for a contact")
-        print("3. Delete a contact")
-        print("4. Update a contact")
-        print("5. Exit")
-        choice = input("Enter your choice: ")
+app = tk.Tk()
+app.title("Contact Management System")
 
-        if choice == '1':
-            name = input("Enter the contact's name: ")
-            phone_number = input("Enter the contact's phone number: ")
-            add_contact(contact_book, name, phone_number)
-        elif choice == '2':
-            name = input("Enter the contact's name to search: ")
-            search_contact(contact_book, name)
-        elif choice == '3':
-            name = input("Enter the contact's name to delete: ")
-            delete_contact(contact_book, name)
-        elif choice == '4':
-            name = input("Enter the contact's name to update: ")
-            new_phone_number = input("Enter the new phone number: ")
-            update_contact(contact_book, name, new_phone_number)
-        elif choice == '5':
-            print("Exiting program.")
-            break
-        else:
-            print("Invalid choice. Please choose a valid option.")
+# Grid layout for entries and buttons
+tk.Label(app, text="Name").grid(row=0, column=0)
+tk.Label(app, text="Phone").grid(row=1, column=0)
+tk.Label(app, text="Email").grid(row=2, column=0)
+name_entry = tk.Entry(app)
+phone_entry = tk.Entry(app)
+email_entry = tk.Entry(app)
+name_entry.grid(row=0, column=1)
+phone_entry.grid(row=1, column=1)
+email_entry.grid(row=2, column=1)
+tk.Button(app, text="Add Contact", command=add_contact).grid(row=3, column=1)
 
-if __name__ == "__main__":
-    main()
+tk.Label(app, text="Search by Name").grid(row=4, column=0)
+search_entry = tk.Entry(app)
+search_entry.grid(row=4, column=1)
+tk.Button(app, text="Search", command=search_contact).grid(row=4, column=2)
+
+tk.Label(app, text="Update Name").grid(row=5, column=0)
+tk.Label(app, text="New Phone").grid(row=6, column=0)
+tk.Label(app, text="New Email").grid(row=7, column=0)
+update_name_entry = tk.Entry(app)
+update_phone_entry = tk.Entry(app)
+update_email_entry = tk.Entry(app)
+update_name_entry.grid(row=5, column=1)
+update_phone_entry.grid(row=6, column=1)
+update_email_entry.grid(row=7, column=1)
+tk.Button(app, text="Update Contact", command=update_contact).grid(row=8, column=1)
+
+tk.Label(app, text="Delete by Name").grid(row=9, column=0)
+delete_entry = tk.Entry(app)
+delete_entry.grid(row=9, column=1)
+tk.Button(app, text="Delete", command=delete_contact).grid(row=9, column=2)
+
+tk.Button(app, text="List All Contacts", command=list_contacts).grid(row=10, column=1)
+
+app.mainloop()
